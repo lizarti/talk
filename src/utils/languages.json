@@ -1,0 +1,16 @@
+{
+  "languages": [
+    {
+      "name": "Português (Brasil)",
+      "value": "pt-BR"
+    },
+    {
+      "name": "English (USA)",
+      "value": "en-US"
+    },
+    {
+      "name": "English (United Kingdom)",
+      "value": "en-GB"
+    }
+  ]
+}

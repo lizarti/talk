@@ -1,14 +1,6 @@
 <template>
-  <div class="flex ml-6 items-center">
-    <span class="mr-3">{{ label }}</span>
-    <div class="relative">
-      <select
-        class="rounded border appearance-none border-gray-400 py-2 focus:outline-none focus:border-indigo-500 text-base pl-3 pr-10"
-        :value="value.name"
-        @change="onChange">
-        <option v-for="language in languages" :key="language.name" :value="language.name">{{ language.name }}</option>
-      </select>
-    </div>
+  <div class="flex items-center text-gray-700">
+    <t-select class="flex-grow" :label="label" :options="languages" :value="value" @change="onChange" title="name" subtitle="lang"></t-select>
   </div>
 </template>
 
@@ -26,11 +18,8 @@ export default {
     selectedOption: {}
   }),
   methods: {
-    onChange (event) {
-      const selectedLanguage = this.languages.find(l => l.name === event.target.value)
-      if (selectedLanguage) {
-        this.$emit('input', selectedLanguage)
-      }
+    onChange (option) {
+      this.$emit('input', option)
     }
   },
   mounted () {
