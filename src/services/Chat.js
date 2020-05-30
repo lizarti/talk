@@ -53,7 +53,6 @@ export default class Chat extends EventEmitter {
       this.emit(EVENTS.ROOM_CREATED, room)
     })
     this.chatSocket.on(EVENTS.NEW_MESSAGE, message => {
-      console.log('message', new Message(message))
       this.emit(EVENTS.NEW_MESSAGE, new Message(message))
     })
     this.chatSocket.on(EVENTS.CLOSE_ROOM, roomId => {

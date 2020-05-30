@@ -58,9 +58,6 @@ export default {
         const incomingLanguage = message.room.languages[message.senderId].input.value.substring(0, 2)
         const myLanguage = message.room.languages[this.$user.user().id].output.lang.substring(0, 2)
 
-        console.log('incomingLanguage', incomingLanguage)
-        console.log('myLanguage', myLanguage)
-
         if (incomingLanguage !== myLanguage) {
           const sentence = {
             text: message.text,

@@ -73,10 +73,8 @@ export default class Speech {
     this.speechRecognition.continuous = merged.continuous
     this.speechRecognition.maxAlternatives = merged.maxAlternatives
     this.rate = merged.rate
-    console.log(merged)
     setTimeout(() => {
       this.speechRecognition.start()
-      console.log(this.speechRecognition)
     }, 400)
   }
 }
