@@ -1,9 +1,10 @@
-const speech = (store) => store.state.speechService
+import SpeechService from '../services/Speech'
+const speech = new SpeechService()
 
-export default function install (Vue, { store }) {
+export default function install (Vue) {
   Object.defineProperty(Vue.prototype, '$speech', {
     get () {
-      return speech(store)
+      return speech
     }
   })
 }

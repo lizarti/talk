@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import ChatService from './services/Chat'
-import SpeechService from './services/Speech'
 
 /* TYPES */
 const SET_USER = 'SET_USER'
@@ -16,14 +15,12 @@ const ADD_MESSAGE_TO_ROOM = 'ADD_MESSAGE_TO_ROOM'
 const SET_LANGUAGE_TO_ROOM = 'SET_LANGUAGE_TO_ROOM'
 
 const chatService = new ChatService()
-const speechService = new SpeechService()
 
 const initialState = () => {
   return {
     user: null,
     rooms: [],
     chatService: chatService,
-    speechService: speechService,
     activeRoom: null
   }
 }

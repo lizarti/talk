@@ -32,7 +32,7 @@ import Conversation from './components/Conversation'
 
 Vue.use(UserPlugin, { store })
 Vue.use(ChatPlugin, { store })
-Vue.use(SpeechPlugin, { store })
+Vue.use(SpeechPlugin)
 Vue.use(NotificationPlugin)
 
 Vue.component(TButton.name, TButton)
