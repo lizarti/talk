@@ -74,7 +74,6 @@ export default {
       }, 400)
     },
     onResult (res) {
-      console.log(res)
       if (res.transcript) {
         this.sendMessage(res.transcript)
       }

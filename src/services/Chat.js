@@ -16,7 +16,6 @@ const EVENTS = {
 export default class Chat extends EventEmitter {
   login (user) {
     this.chatSocket = io.connect(`${wsBaseUrl}`, {
-      // transports: ['websockets'],
       upgrade: false,
       path: '/socket.io/socket.io',
       query: {
@@ -25,8 +24,6 @@ export default class Chat extends EventEmitter {
         color: user.color
       }
     })
-    console.log(this.chatSocket)
-    this.chatSocket.on('error', console.log)
     this.bindListeners()
   }
 
