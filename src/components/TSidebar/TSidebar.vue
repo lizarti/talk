@@ -1,0 +1,175 @@
+<template>
+  <div class="md:flex flex-col md:flex-row md:min-h-screen">
+    <div class="flex flex-col w-full md:w-56 text-gray-700 bg-white dark-mode:text-gray-200 dark-mode:bg-gray-800 flex-shrink-0">
+      <div class="flex-shrink-0 px-8 py-2 flex flex-row items-center justify-between">
+        <!-- <button class="rounded-lg md:hidden focus:outline-none focus:shadow-outline" @click="open = !open">
+          <svg fill="currentColor" viewBox="0 0 20 20" class="w-6 h-6">
+            <path v-show="!open" fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+            <path v-show="open" fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </button> -->
+        <t-button icon class="md:hidden text-gray-800 " @click="open = !open">
+          <template v-slot:prepend>
+            <t-icon class="h-4 w-4 text-x1" :name="open ? 'close' : 'menu'"></t-icon>
+          </template>
+        </t-button>
+      </div>
+      <nav :class="{'block': open, 'hidden': !open}" class="flex-grow md:block px-4 pb-4 md:pb-0 md:overflow-y-auto">
+        <div class="flex flex-col h-full">
+          <div class="text-center p-2 pb-4 mb-4 border-b relative" :style="{'color': $user.user().color}" v-if="!!$user.user().username">
+            <t-button icon class="text-gray-800 absolute bottom-0 mb-8 left-0 ml-8" @click="openProfileEdit()">
+              <template v-slot:prepend>
+                <t-icon class="h-5 w-5 text-x1" name="cog"></t-icon>
+              </template>
+            </t-button>
+            <img
+              class="h-24 w-24 rounded-full mx-auto"
+              :src="`https://api.adorable.io/avatars/160/${$user.user().username}@adorable.io.png`"
+              :alt="$user.user.username"
+            />
+            <p class="pt-4 text-lg font-semibold uppercase">{{ $user.user().username }}</p>
+            <p class="text-sm text-gray-600 select-all">{{ $user.user().id }}</p>
+          </div>
+
+          <div class="flex justify-center w-full">
+            <h4 class="tracking-widest text-xs title-font font-medium mb-1 uppercase">CONVERSAS</h4>
+          </div>
+
+          <div class="px-4 py-4 flex justify-center">
+            <t-button @click="openJoinRoom()">
+              NOVA
+            </t-button>
+          </div>
+          <div class="flex-grow overflow-y-auto">
+            <t-room-list-item v-for="(room, index) of rooms" :key="index" :room="room" @select="selectRoom(room)" :active="room === $store.getters.activeRoom">
+            </t-room-list-item>
+          </div>
+          <div class="px-4 py-4 flex flex-col items-center justify-center">
+            <t-button @click="exit()">
+              SAIR
+            </t-button>
+            <p class="mt-4 text-xs tracking-wide uppercase">Feito com <span :style="{ 'color':$user.user().color }"><t-icon class="h-4 w-4 text-x1" name="heart"></t-icon></span> e CSS</p>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <t-modal v-model="creating.modal" title="Nova conversa">
+      <div class="w-64">
+        <t-text-field ref="destinatario" placeholder="ID do destinatário" v-model="creating.id"></t-text-field>
+        <t-alert type="error" v-if="existing_room">
+          <p>Já possui uma conversa com esse usuário ({{ other_user.username }}).</p>
+        </t-alert>
+        <t-alert type="error" v-if="self_chat">
+          <p>Você não pode começar uma convesa com você mesmo (pelo menos não por enquanto).</p>
+        </t-alert>
+
+      </div>
+      <template v-slot:footer>
+        <div class="flex justify-center">
+          <t-button @click="loginIntoRoom()" :disabled="!is_valid">ENTRAR</t-button>
+        </div>
+      </template>
+    </t-modal>
+
+    <t-modal v-model="profile.modal" title="Editar perfil">
+      <div class="w-48">
+        <t-color-picker :value="$user.user().color" @input="changeProfileColor"></t-color-picker>
+      </div>
+      <template v-slot:footer>
+        <div class="flex justify-center">
+          <t-button @click="() => profile.modal = false" text>OK</t-button>
+        </div>
+      </template>
+    </t-modal>
+
+  </div>
+</template>
+
+<script>
+export default {
+  name: 't-sidebar',
+  data: () => ({
+    open: false,
+    creating: {
+      modal: false,
+      id: '',
+      found: false,
+      timeout: 0
+    },
+    profile: {
+      modal: false,
+      color: ''
+    }
+  }),
+  methods: {
+    openJoinRoom () {
+      this.creating.modal = true
+      setTimeout(() => {
+        this.$refs.destinatario.$el.querySelector('input').focus()
+      }, 100)
+    },
+    searchForUser () {
+      clearTimeout(this.creating.timeout)
+      this.creating.timeout = setTimeout(() => {
+        if (this.creating.id.length === 9) {
+          this.loginIntoRoom()
+        }
+      }, 200)
+    },
+    loginIntoRoom () {
+      // console.log('loginIntoRoom')
+      // const that = this
+      // const cb = function () {
+      //   that.creating.id = ''
+      //   that.creating.modal = false
+      // }
+      // this.$chat.off('ROOM_CREATED', cb)
+      // this.$chat.on('ROOM_CREATED', cb)
+      this.$chat.startConversation(this.creating.id)
+      this.creating.id = ''
+      this.creating.modal = false
+    },
+    selectRoom (room) {
+      this.$store.dispatch('activateRoom', room)
+    },
+    openProfileEdit () {
+      this.profile.modal = true
+    },
+    changeProfileColor (color) {
+      const user = this.$user.user()
+      user.color = color
+      this.updateUser(user)
+    },
+    updateUser (user) {
+      this.$store.dispatch('setUser', user)
+    },
+    exit () {
+      this.$store.dispatch('exit')
+    }
+  },
+  computed: {
+    is_valid () {
+      return !this.existing_room && !this.self_chat && this.creating.id.length === 9
+    },
+    rooms () {
+      return this.$store.getters.rooms
+    },
+    existing_room () {
+      return this.rooms.find(r => {
+        return r.participants.some(p => p.id === this.creating.id)
+      })
+    },
+    self_chat () {
+      return this.creating.id === this.$user.user().id
+    },
+    other_user () {
+      return this.existing_room && this.existing_room.participants.find(p => p.id !== this.$user.user().id)
+    }
+  }
+}
+</script>
+
+<style>
+
+</style>

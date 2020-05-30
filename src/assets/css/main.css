@@ -4,6 +4,10 @@
 
 @tailwind utilities;
 
+body {
+  background-color: #f7fafc;
+}
+
 /*
  *  SCROLLBAR
  */
@@ -26,4 +30,35 @@
    background-color: #888;
    border-radius: 1px;
  }
- 
+
+/* animation for vue transition tag */
+
+/* fade */
+.fade-up-down-enter-active {
+  transition: all 0.3s ease;
+}
+.fade-up-down-leave-active {
+  transition: all 0.3s ease;
+}
+.fade-up-down-enter {
+  transform: translateY(10%);
+  opacity: 0;
+}
+.fade-up-down-leave-to {
+  transform: translateY(10%);
+  opacity: 0;
+}
+
+.fade-enter-active{
+    -webkit-transition: opacity 2s;
+    transition: opacity .3s;
+
+}
+.fade-leave-active {
+    transition: opacity .3s;
+}
+
+.fade-enter,
+.fade-leave-to{
+    opacity: 0;
+}

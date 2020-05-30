@@ -49,11 +49,14 @@ export default class Conversation {
     })
   }
 
-  speak (utterance, voice) {
-    const utterThis = new SpeechSynthesisUtterance(utterance)
-    if (voice) {
-      utterThis.voice = voice
-    }
+  speak (message) {
+    const utterThis = new SpeechSynthesisUtterance(message.text)
+    console.log('utterThis', message)
+    const receiver = Object.keys(message.room.languages).find(k => k !== message.senderId)
+    const messageVoice = message.room.languages[receiver].output
+    const voice = this.synth.getVoices().find(voice => voice.name === messageVoice.name)
+    console.log('voice', voice)
+    utterThis.voice = voice
     this.synth.speak(utterThis)
   }
 
@@ -69,7 +72,6 @@ export default class Conversation {
       this.recognizing = false
       this.speechRecognition.stop()
     }
-    console.log('this.speechRecognition', this.speechRecognition)
     this.speechRecognition.lang = language
     setTimeout(() => {
       this.speechRecognition.start()
