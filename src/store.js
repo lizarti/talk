@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import ChatService from './services/Chat'
+import SpeechService from './services/Speech'
 
 /* TYPES */
 const SET_USER = 'SET_USER'
@@ -15,12 +16,14 @@ const ADD_MESSAGE_TO_ROOM = 'ADD_MESSAGE_TO_ROOM'
 const SET_LANGUAGE_TO_ROOM = 'SET_LANGUAGE_TO_ROOM'
 
 const chatService = new ChatService()
+const speechService = new SpeechService()
 
 const initialState = () => {
   return {
     user: null,
     rooms: [],
     chatService: chatService,
+    speechService: speechService,
     activeRoom: null
   }
 }
@@ -50,12 +53,18 @@ const mutations = {
   },
   [ACTIVATE_ROOM] (state, room) {
     state.activeRoom = room
+    state.activeRoom.unreadMessages = 0
   },
   [DEACTIVATE_ROOM] (state) {
     state.activeRoom = null
   },
   [ADD_MESSAGE_TO_ROOM] (state, message) {
     const room = state.rooms.find(r => r.id === message.room.id)
+    if (room !== state.activeRoom) {
+      if (message.senderId !== state.user.id) {
+        room.unreadMessages += 1
+      }
+    }
     room.messages.push(message)
     state.chatService.emit('MESSAGE_ADDED_TO_ROOM', message)
   },

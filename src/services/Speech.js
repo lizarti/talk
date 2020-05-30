@@ -3,30 +3,33 @@ const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecogni
 const defaultConfig = {
   lang: 'pt-BR',
   continuous: true,
-  maxAlternatives: 1
+  maxAlternatives: 1,
+  rate: 1
 }
 
-export default class Conversation {
-  constructor (config) {
+export default class Speech {
+  constructor () {
+    this.init()
+  }
+
+  init () {
     this.speechRecognition = new SpeechRecognition()
     this.synth = window.speechSynthesis
     this.recognizing = false
-    this.config(config)
+    this.config()
   }
 
   listen (onResult, onEnd, onError) {
-    this.bindEvents(onResult, onEnd, onError)
     this.speechRecognition.start()
   }
 
   bindEvents (onResult, onEnd, onError) {
     this.speechRecognition.addEventListener('start', () => {
-      console.log('Start listening...')
       this.recognizing = true
     })
 
     this.speechRecognition.addEventListener('speechend', event => {
-      console.log('SPEECHEND')
+      this.recognizing = false
     })
 
     this.speechRecognition.addEventListener('result', event => {
@@ -39,7 +42,6 @@ export default class Conversation {
     })
 
     this.speechRecognition.addEventListener('end', event => {
-      console.log('end')
       this.recognizing = false
       onEnd(event)
     })
@@ -50,31 +52,31 @@ export default class Conversation {
   }
 
   speak (message) {
-    const utterThis = new SpeechSynthesisUtterance(message.text)
-    console.log('utterThis', message)
+    this.speechRecognition.abort()
+    const utterThis = new SpeechSynthesisUtterance(message.utterance)
+    utterThis.rate = this.rate
     const receiver = Object.keys(message.room.languages).find(k => k !== message.senderId)
     const messageVoice = message.room.languages[receiver].output
     const voice = this.synth.getVoices().find(voice => voice.name === messageVoice.name)
-    console.log('voice', voice)
     utterThis.voice = voice
     this.synth.speak(utterThis)
+    setTimeout(() => {
+      this.speechRecognition.start()
+    }, 2000)
   }
 
   config (config) {
-    const merged = Object.assign(defaultConfig, config)
+    this.speechRecognition.abort()
+    this.speechRecognition.stop()
+    const merged = Object.assign({}, defaultConfig, config)
     this.speechRecognition.lang = merged.lang
     this.speechRecognition.continuous = merged.continuous
     this.speechRecognition.maxAlternatives = merged.maxAlternatives
-  }
-
-  setLanguage (language) {
-    if (this.recognizing) {
-      this.recognizing = false
-      this.speechRecognition.stop()
-    }
-    this.speechRecognition.lang = language
+    this.rate = merged.rate
+    console.log(merged)
     setTimeout(() => {
       this.speechRecognition.start()
+      console.log(this.speechRecognition)
     }, 400)
   }
 }

@@ -10,6 +10,7 @@ import store from './store'
 /* plugins */
 import UserPlugin from './plugins/user'
 import ChatPlugin from './plugins/chat'
+import SpeechPlugin from './plugins/speech'
 import NotificationPlugin from './plugins/notification'
 
 /* components */
@@ -31,6 +32,7 @@ import Conversation from './components/Conversation'
 
 Vue.use(UserPlugin, { store })
 Vue.use(ChatPlugin, { store })
+Vue.use(SpeechPlugin, { store })
 Vue.use(NotificationPlugin)
 
 Vue.component(TButton.name, TButton)

@@ -1,16 +1,18 @@
 <template>
   <t-modal title="Configuração" v-model="opened">
-    <div>
-      <h4 class="tracking-widest text-xs title-font font-medium mb-1 uppercase">LINGUAGEM DE ENTRADA</h4>
-      <div class="flex items-center flex-grow text-gray-700">
-        <t-select class="flex-grow" label="Linguagem de entrada" :options="inputLanguages" v-model="selected.inputLanguage" title="name"></t-select>
+    <div class="config--container">
+      <div>
+        <h4 class="tracking-widest text-xs title-font font-medium mb-1 uppercase">LINGUAGEM DE ENTRADA</h4>
+        <div class="flex items-center flex-grow text-gray-700">
+          <t-select class="flex-grow" label="Linguagem de entrada" :options="inputLanguages" v-model="selected.inputLanguage" title="name"></t-select>
+        </div>
       </div>
-    </div>
 
-    <div>
-      <h4 class="tracking-widest text-xs title-font font-medium mb-1 uppercase">VOZ DE SAÍDA</h4>
-      <div class="flex items-center flex-grow text-gray-700">
-        <t-select class="flex-grow" label="Voz de saída" :options="outputLanguages" v-model="selected.outputLanguage" title="name" subtitle="lang"></t-select>
+      <div>
+        <h4 class="tracking-widest text-xs title-font font-medium mb-1 uppercase">VOZ DE SAÍDA</h4>
+        <div class="flex items-center flex-grow text-gray-700">
+          <t-select class="flex-grow" label="Voz de saída" :options="outputLanguages" v-model="selected.outputLanguage" title="name" subtitle="lang"></t-select>
+        </div>
       </div>
     </div>
 
@@ -68,6 +70,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+  .config--container {
+    width: 300px;
+  }
 </style>

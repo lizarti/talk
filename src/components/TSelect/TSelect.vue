@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center">
+  <div class="flex flex-col items-center max-w-full">
     <div class="w-full flex flex-col items-center">
       <div class="w-full px-4">
         <div class="flex flex-col items-center relative">

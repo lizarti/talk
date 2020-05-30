@@ -7,7 +7,7 @@
 <!--          -->
       <div class="flex flex-col items-center justify-center h-full w-full -mt-16">
         <transition name="fade-up-down">
-          <div v-show="value" class="modal-wrapper inline-block flex items-center z-30">
+          <div v-show="value" class="modal-wrapper inline-block flex items-center z-30" :class="classes">
             <div class="modal bg-white max-h-screen shadow-lg flex-row rounded relative">
 
               <div class="mb-4 px-5 py-4 bg-blue-200">
@@ -39,7 +39,8 @@ export default {
   name: 't-modal',
   props: {
     value: Boolean,
-    title: String
+    title: String,
+    classes: String
   },
   data: () => ({
   }),

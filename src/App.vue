@@ -52,14 +52,28 @@ export default {
         delete room.messages
         message.room = room
       }
-      console.log('NEW_MESSAGE', message)
 
       /* traduz */
       if (message.senderId !== this.$user.user().id) {
-        translateService.translateSentence(message.text).then(res => {
-          message.translated = res.text[0]
+        const incomingLanguage = message.room.languages[message.senderId].input.value.substring(0, 2)
+        const myLanguage = message.room.languages[this.$user.user().id].output.lang.substring(0, 2)
+
+        console.log('incomingLanguage', incomingLanguage)
+        console.log('myLanguage', myLanguage)
+
+        if (incomingLanguage !== myLanguage) {
+          const sentence = {
+            text: message.text,
+            from: incomingLanguage,
+            to: myLanguage
+          }
+          translateService.translateSentence(sentence).then(res => {
+            message.translated = res.text[0]
+            this.addMessage(message)
+          })
+        } else {
           this.addMessage(message)
-        })
+        }
       } else {
         this.addMessage(message)
       }

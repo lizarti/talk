@@ -33,16 +33,20 @@
             </t-button>
 
           </div>
-          <div class="flex-1 mt-8 b-4">
+          <div class="flex-1 mt-8 b-4 overflow-y-auto pr-8 -mr-8">
             <template v-for="(message) in room.messages">
               <message :message="message" :key="message.timestamp" class="mb-4"></message>
             </template>
           </div>
           <div class="flex items-center">
-            <t-text-field placeholder="Mensagem" v-model="message" @keyup.enter="sendTextMessage()"></t-text-field>
+            <div class="text-gray-500 flex items-center">
+              <t-button icon class="mr-4" @click="init()">
+                <t-icon class="h-4 w-4 text-x1" name="mic"></t-icon>
+              </t-button>
+            </div>
+            <t-text-field ref="inputmessage" placeholder="Mensagem" v-model="message" @keyup.enter="sendTextMessage()"></t-text-field>
             <t-button class="ml-4" @click="sendTextMessage()">ENVIAR</t-button>
           </div>
-
           <t-room-config :room="room" @configure="onConfigure" :opened="roomConfigModal"></t-room-config>
         </div>
       </div>
@@ -51,46 +55,43 @@
 </template>
 
 <script>
-import Conversation from '../services/Conversation'
 import Message from '../models/Message'
-import languagesJson from '../utils/languages.json'
 export default {
   name: 'conversation',
   props: ['room'],
   data: () => ({
-    translatedMessages: [],
-    inputLanguage: {},
-    outputVoiceLanguage: {},
-    languages: [],
-    conversationService: new Conversation(),
     message: '',
-    roomConfigModal: false
+    roomConfigModal: false,
+    initialized: false
   }),
   methods: {
     init () {
-      this.conversationService.listen(this.onResult, this.onEnd, this.onError)
+      this.initialized = false
+      this.$speech.speechRecognition.abort()
+      setTimeout(() => {
+        this.$speech.listen()
+        this.initialized = true
+      }, 400)
     },
     onResult (res) {
+      console.log(res)
       if (res.transcript) {
         this.sendMessage(res.transcript)
       }
     },
     onError (res) {
-
+      this.initialized = false
     },
     onEnd (res) {
-
+      this.initialized = false
     },
     speak (message) {
-      this.conversationService.speak(message)
-    },
-    onInputLanguageChange (language) {
-      this.conversationService.setLanguage(language.value)
+      message.utterance = message.translated || message.text
+      this.$speech.speak(message)
     },
     sendMessage (text) {
       const message = new Message()
       message.text = text
-      // message.lang = this.room.languages[this.$user.user().id].input
       message.senderId = this.$user.user().id
       message.room = this.room
 
@@ -112,6 +113,9 @@ export default {
         languages
       })
       this.roomConfigModal = false
+      this.$speech.config({
+        lang: languages.input.value
+      })
     }
   },
   computed: {
@@ -134,9 +138,6 @@ export default {
       return this.room.languages[this.other_user.id].input && this.room.languages[this.other_user.id].output
     }
   },
-  created () {
-    this.inputLanguage = languagesJson.languages[0]
-  },
   mounted () {
     this.init()
     this.$chat.on('MESSAGE_ADDED_TO_ROOM', message => {
@@ -144,9 +145,14 @@ export default {
         this.speak(message)
       }
     })
+    this.$speech.bindEvents(this.onResult, this.onEnd, this.onError)
+    this.$refs.inputmessage.$el.querySelector('input').focus()
   },
   beforeDestroy () {
     this.$chat.off('MESSAGE_ADDED_TO_ROOM')
+  },
+  destroyed () {
+    this.$speech.init()
   }
 }
 </script>

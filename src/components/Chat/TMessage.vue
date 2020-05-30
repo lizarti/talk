@@ -1,8 +1,15 @@
 <template>
-  <div class="flex-grow">
-    <div class="flex flex-col" :class="computed_classes">
-      <span class="text-xs text-gray-600 mb-2 tracking-wider inline-block">{{ formatted_date }}</span>
-      <span class="leading-relaxed text-white rounded py-2 px-3 inline-block" :style="{'background-color': is_mine ? this.$user.user().color : other_user.color }">{{ message.text_message }}</span>
+  <div class="flex flex-grow items-center ml-1" :class="computed_classes">
+    <div v-if="!is_mine">
+      <t-button icon class="text-gray-500 mt-6 mr-3" @click="speak()">
+        <template v-slot:prepend>
+          <t-icon class="h-4 w-4 text-x1" name="mic"></t-icon>
+        </template>
+      </t-button>
+    </div>
+    <div class="flex flex-col">
+      <span class="text-xs text-gray-600 mb-1 inline-block">{{ formatted_date }}</span>
+      <span class="leading-relaxed text-white rounded py-2 px-3 inline-block" :style="{'background-color': is_mine ? this.$user.user().color : other_user.color }">{{ text_message }}</span>
     </div>
   </div>
 </template>
@@ -14,6 +21,13 @@ export default {
   props: {
     message: Message
   },
+  methods: {
+    speak () {
+      const message = Object.assign({}, this.message)
+      message.utterance = this.text_message
+      this.$speech.speak(message)
+    }
+  },
   computed: {
     formatted_date () {
       return new Date(this.message.timestamp).toLocaleString()
@@ -23,8 +37,8 @@ export default {
     },
     computed_classes () {
       return {
-        'items-start': !this.is_mine,
-        'items-end': this.is_mine
+        'justify-start': !this.is_mine,
+        'justify-end': this.is_mine
       }
     },
     other_user () {
@@ -34,7 +48,7 @@ export default {
       return !!this.message.translated
     },
     text_message () {
-      return this.should_be_translated ? this.should_be_translated : this.message.text
+      return this.is_mine ? this.message.text : (this.should_be_translated ? this.message.translated : this.message.text)
     }
   }
 }

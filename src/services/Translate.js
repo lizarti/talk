@@ -1,5 +1,4 @@
 import { yandexAPIUrl, yandexAPIKey } from '../config'
-console.log(yandexAPIKey, yandexAPIUrl)
 export default class Translate {
   translateSentence (sentence) {
     return new Promise((resolve, reject) => {
