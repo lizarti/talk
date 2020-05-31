@@ -1,5 +1,5 @@
 <template>
-  <t-modal v-model="opened" title="Nova conversa">
+  <t-modal :value="true" title="Nova conversa" @input="val => $emit('input', val)">
     <div class="w-64">
       <t-text-field maxlength="9" ref="destinatario" placeholder="ID do destinatário" v-model="id" @keyup="searchForUser"></t-text-field>
       <t-alert type="error" v-if="existing_room">
@@ -13,7 +13,7 @@
     <t-alert v-if="searching" type="info">
       Procurando. . .
     </t-alert>
-    <t-alert v-if="notFound" type="error">
+    <t-alert v-if="is_valid && notFound" type="error">
       Usuário não encontrado
     </t-alert>
     <div v-if="is_valid && user">
@@ -35,9 +35,6 @@
 <script>
 export default {
   name: 't-join-room',
-  props: {
-    opened: Boolean
-  },
   data: () => ({
     user: null,
     id: '',

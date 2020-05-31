@@ -9,7 +9,7 @@
     </div>
     <div class="flex flex-col">
       <span class="text-xs text-gray-600 mb-1 inline-block">{{ formatted_date }}</span>
-      <span class="leading-relaxed text-white rounded py-2 px-3 inline-block" :style="{'background-color': is_mine ? this.$user.user().color : other_user.color }">{{ text_message }}</span>
+      <span class="leading-relaxed text-white rounded py-2 px-3 inline-block" :style="{'background-color': is_mine ? me.color : other_user.color }">{{ text_message }}</span>
     </div>
   </div>
 </template>
@@ -17,7 +17,7 @@
 <script>
 import Message from '../../models/Message'
 export default {
-  name: 'message',
+  name: 't-message',
   props: {
     message: Message
   },
@@ -40,6 +40,10 @@ export default {
         'justify-start': !this.is_mine,
         'justify-end': this.is_mine
       }
+    },
+    me () {
+      /* o eu da mensagem pode ter definições (de cores, por exemplo) diferentes do eu atual */
+      return this.message.room.participants.find(p => p.id === this.$user.user().id)
     },
     other_user () {
       return this.message.room.participants.find(p => p.id !== this.$user.user().id)

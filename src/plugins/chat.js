@@ -1,9 +1,10 @@
-const chat = (store) => store.state.chatService
+import ChatService from '../services/Chat'
+const chatService = new ChatService()
 
-export default function install (Vue, { store }) {
+export default function install (Vue) {
   Object.defineProperty(Vue.prototype, '$chat', {
     get () {
-      return chat(store)
+      return chatService
     }
   })
 }

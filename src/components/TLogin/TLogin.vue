@@ -26,7 +26,7 @@ export default {
   }),
   methods: {
     login () {
-      this.$user.login(this.user)
+      this.$chat.login(this.user)
       this.modalOpened = false
     }
   },

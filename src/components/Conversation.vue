@@ -33,9 +33,9 @@
             </t-button>
 
           </div>
-          <div class="flex-1 mt-8 b-4 overflow-y-auto pr-8 -mr-8">
+          <div class="flex-1 mt-8 b-4 overflow-y-auto pr-8 -mr-8" ref="messages-container">
             <template v-for="(message) in room.messages">
-              <message :message="message" :key="message.timestamp" class="mb-4"></message>
+              <t-message :message="message" :key="message.timestamp" class="mb-4"></t-message>
             </template>
           </div>
           <div class="flex items-center">
@@ -140,6 +140,19 @@ export default {
     },
     is_other_language_configured () {
       return this.room.languages[this.other_user.id].input && this.room.languages[this.other_user.id].output
+    }
+  },
+  watch: {
+    'room.messages.length' (newValue, oldValue) {
+      setTimeout(() => {
+        const scrollPosition = this.$refs['messages-container'].scrollTop
+        const scrollHeight = this.$refs['messages-container'].scrollHeight
+        const clientHeight = this.$refs['messages-container'].clientHeight
+        /* só manda rolar se estiver com o scroll lá em baixo */
+        if (scrollHeight - scrollPosition < clientHeight + 200) {
+          this.$refs['messages-container'].scrollTop = this.$refs['messages-container'].scrollHeight
+        }
+      }, 10)
     }
   },
   mounted () {

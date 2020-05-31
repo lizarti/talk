@@ -7,12 +7,16 @@ import Message from '../models/Message'
 // const synth = window.speechSynthesis
 
 const EVENTS = {
+  USER_CREATED: 'USER_CREATED',
+  UPDATE_USER_IN_ROOMS: 'UPDATE_USER_IN_ROOMS',
   CREATE_ROOM: 'CREATE_ROOM',
+  SEARCH_USER: 'SEARCH_USER',
+  UPDATE_USER: 'UPDATE_USER',
   ROOM_CREATED: 'ROOM_CREATED',
   JOIN_ROOM: 'JOIN_ROOM',
-  NEW_MESSAGE: 'NEW_MESSAGE',
   CLOSE_ROOM: 'CLOSE_ROOM',
-  SEARCH_USER: 'SEARCH_USER'
+  USER_NOT_FOUND: 'USER_NOT_FOUND',
+  NEW_MESSAGE: 'NEW_MESSAGE'
 }
 export default class Chat extends EventEmitter {
   login (user) {
@@ -41,7 +45,14 @@ export default class Chat extends EventEmitter {
     this.chatSocket.emit(EVENTS.SEARCH_USER, userId)
   }
 
+  updateUser (user) {
+    this.chatSocket.emit(EVENTS.UPDATE_USER, user)
+  }
+
   bindListeners () {
+    this.chatSocket.on(EVENTS.USER_CREATED, user => {
+      this.emit(EVENTS.USER_CREATED, user)
+    })
     this.chatSocket.on(EVENTS.ROOM_CREATED, room => {
       /* inicializa algumas coisas extras */
       room.messages = []
@@ -68,6 +79,12 @@ export default class Chat extends EventEmitter {
     })
     this.chatSocket.on(EVENTS.SEARCH_USER, user => {
       this.emit(EVENTS.SEARCH_USER, user)
+    })
+    this.chatSocket.on(EVENTS.UPDATE_USER, user => {
+      this.emit(EVENTS.UPDATE_USER, user)
+    })
+    this.chatSocket.on(EVENTS.UPDATE_USER_IN_ROOMS, user => {
+      this.emit(EVENTS.UPDATE_USER_IN_ROOMS, user)
     })
   }
 

@@ -31,7 +31,7 @@ import TRoomConfig from './components/Chat/TRoomConfig'
 import Conversation from './components/Conversation'
 
 Vue.use(UserPlugin, { store })
-Vue.use(ChatPlugin, { store })
+Vue.use(ChatPlugin)
 Vue.use(SpeechPlugin)
 Vue.use(NotificationPlugin)
 

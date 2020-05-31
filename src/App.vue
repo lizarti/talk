@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import Room from './models/Room'
 import Translate from './services/Translate'
 import languagesJson from './utils/languages.json'
 
@@ -31,6 +32,7 @@ export default {
   methods: {
     addMessage (message) {
       this.$store.dispatch('addMessageToRoom', message)
+      this.$chat.emit('MESSAGE_ADDED_TO_ROOM', message)
     }
   },
   computed: {
@@ -41,12 +43,18 @@ export default {
   created () {
     const user = localStorage.getItem('user')
     if (user) {
-      this.$store.dispatch('setUser', JSON.parse(user))
+      this.$chat.login(JSON.parse(user))
+    } else {
+      this.initialized = true
     }
-    this.initialized = true
   },
   mounted () {
     /* bind chat events */
+    this.$chat.on('USER_CREATED', user => {
+      this.$store.dispatch('setUser', user)
+      this.initialized = true
+    })
+
     this.$chat.on('ROOM_CREATED', room => {
       room.languages[this.$user.user().id] = {
         input: languagesJson.languages[0],
@@ -57,7 +65,8 @@ export default {
           }
         })[0]
       }
-      this.$store.dispatch('addRoom', room)
+      const roomModel = new Room(room)
+      this.$store.dispatch('addRoom', roomModel)
     })
     this.$chat.on('NEW_MESSAGE', message => {
       console.log('MENSAGEM RECEBIDA', message)
@@ -101,6 +110,15 @@ export default {
       } else {
         this.addMessage(message)
       }
+    })
+
+    this.$chat.on('UPDATE_USER_IN_ROOMS', user => {
+      console.log('UPDATE_USER_IN_ROOMS', user)
+      this.$store.dispatch('updateUserInRooms', user)
+    })
+
+    this.$chat.on('UPDATE_USER', user => {
+      this.$store.dispatch('updateUser', user)
     })
 
     this.$chat.on('CLOSE_ROOM', roomId => {

@@ -52,28 +52,21 @@
       </nav>
     </div>
 
-    <t-join-room v-if="creating.modal" :opened="creating.modal" @userSelect="loginIntoRoom"></t-join-room>
+    <t-join-room v-if="creating.modal" v-model="creating.modal" @userSelect="loginIntoRoom"></t-join-room>
 
-    <t-modal v-model="profile.modal" title="Editar perfil">
-      <div class="w-48">
-        <t-color-picker :value="$user.user().color" @input="changeProfileColor"></t-color-picker>
-      </div>
-      <template v-slot:footer>
-        <div class="flex justify-center">
-          <t-button @click="() => profile.modal = false" text>OK</t-button>
-        </div>
-      </template>
-    </t-modal>
+    <t-edit-user v-if="profile.editing" v-model="profile.editing" @edit="updateUser"></t-edit-user>
 
   </div>
 </template>
 
 <script>
 import TJoinRoom from '../Chat/TJoinRoom'
+import TEditUser from '../Chat/TEditUser'
 export default {
   name: 't-sidebar',
   components: {
-    TJoinRoom
+    TJoinRoom,
+    TEditUser
   },
   data: () => ({
     open: true,
@@ -81,11 +74,17 @@ export default {
       modal: false
     },
     profile: {
-      modal: false,
-      color: ''
+      editing: false
     }
   }),
   methods: {
+    updateUser (user) {
+      const updated = this.$user.user()
+      updated.username = user.username
+      updated.color = user.color
+      this.$chat.updateUser(updated)
+      this.profile.editing = false
+    },
     openJoinRoom () {
       this.creating.modal = true
     },
@@ -97,18 +96,11 @@ export default {
       this.$store.dispatch('activateRoom', room)
     },
     openProfileEdit () {
-      this.profile.modal = true
-    },
-    changeProfileColor (color) {
-      const user = this.$user.user()
-      user.color = color
-      this.updateUser(user)
-    },
-    updateUser (user) {
-      this.$store.dispatch('setUser', user)
+      this.profile.editing = true
     },
     exit () {
       this.$store.dispatch('exit')
+      this.$chat.logout()
     }
   },
   computed: {

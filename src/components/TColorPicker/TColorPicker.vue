@@ -70,7 +70,7 @@ export default {
     }
   },
   created () {
-    this.selectColor(this.colors[Math.floor(Math.random() * this.colors.length)])
+    // this.selectColor(this.colors[Math.floor(Math.random() * this.colors.length)])
   }
 }
 </script>

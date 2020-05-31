@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import ChatService from './services/Chat'
 
 /* TYPES */
 const SET_USER = 'SET_USER'
 const SET_ROOMS = 'SET_ROOMS'
+const UPDATE_USER_IN_ROOMS = 'UPDATE_USER_IN_ROOMS'
 const EXIT = 'EXIT'
 const ADD_ROOM = 'ADD_ROOM'
 const REMOVE_ROOM = 'REMOVE_ROOM'
@@ -14,13 +14,10 @@ const ADD_MESSAGE_TO_ROOM = 'ADD_MESSAGE_TO_ROOM'
 
 const SET_LANGUAGE_TO_ROOM = 'SET_LANGUAGE_TO_ROOM'
 
-const chatService = new ChatService()
-
 const initialState = () => {
   return {
     user: null,
     rooms: [],
-    chatService: chatService,
     activeRoom: null
   }
 }
@@ -29,12 +26,14 @@ const mutations = {
   [SET_USER] (state, user) {
     state.user = user
     localStorage.setItem('user', JSON.stringify(user))
-    state.chatService.login(user)
   },
-  [EXIT] (state) {
-    state.chatService.logout()
-    Object.assign(state, initialState())
-    localStorage.removeItem('user')
+  [UPDATE_USER_IN_ROOMS] (state, user) {
+    state.rooms.forEach(room => {
+      const otherParticipant = room.otherParticipant(state.user)
+      if (otherParticipant) {
+        Object.assign(otherParticipant, user)
+      }
+    })
   },
   [SET_ROOMS] (state, rooms) {
     state.rooms = !state.drawer
@@ -63,10 +62,13 @@ const mutations = {
       }
     }
     room.messages.push(message)
-    state.chatService.emit('MESSAGE_ADDED_TO_ROOM', message)
   },
   [SET_LANGUAGE_TO_ROOM] (state, payload) {
     payload.room.languages[state.user.id] = payload.languages
+  },
+  [EXIT] (state) {
+    Object.assign(state, initialState())
+    localStorage.removeItem('user')
   }
 }
 
@@ -74,8 +76,14 @@ const actions = {
   setUser ({ commit }, user) {
     commit(SET_USER, user)
   },
+  updateUser ({ commit }, user) {
+    commit(SET_USER, user)
+  },
   setRooms ({ commit }, rooms) {
     commit(SET_ROOMS, rooms)
+  },
+  updateUserInRooms ({ commit }, user) {
+    commit(UPDATE_USER_IN_ROOMS, user)
   },
   addRoom ({ commit }, room) {
     commit(ADD_ROOM, room)
