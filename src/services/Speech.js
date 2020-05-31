@@ -8,10 +8,6 @@ const defaultConfig = {
 }
 
 export default class Speech {
-  constructor () {
-    this.init()
-  }
-
   init () {
     this.speechRecognition = new SpeechRecognition()
     this.synth = window.speechSynthesis
@@ -52,6 +48,7 @@ export default class Speech {
   }
 
   speak (message) {
+    console.log('MESSAGE TO SPEAK', message)
     this.speechRecognition.abort()
     const utterThis = new SpeechSynthesisUtterance(message.utterance)
     utterThis.rate = this.rate
@@ -73,8 +70,5 @@ export default class Speech {
     this.speechRecognition.continuous = merged.continuous
     this.speechRecognition.maxAlternatives = merged.maxAlternatives
     this.rate = merged.rate
-    setTimeout(() => {
-      this.speechRecognition.start()
-    }, 400)
   }
 }

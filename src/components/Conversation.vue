@@ -40,14 +40,14 @@
           </div>
           <div class="flex items-center">
             <div class="text-gray-500 flex items-center">
-              <t-button icon class="mr-4" @click="init()">
+              <t-button icon class="mr-4" @click="init()" :class="{'text-blue-500': $speech.recognizing}">
                 <t-icon class="h-4 w-4 text-x1" name="mic"></t-icon>
               </t-button>
             </div>
             <t-text-field ref="inputmessage" placeholder="Mensagem" v-model="message" @keyup.enter="sendTextMessage()"></t-text-field>
             <t-button class="ml-4" @click="sendTextMessage()">ENVIAR</t-button>
           </div>
-          <t-room-config :room="room" @configure="onConfigure" :opened="roomConfigModal"></t-room-config>
+          <t-room-config v-if="roomConfigModal" :room="room" @configure="onConfigure" :opened="roomConfigModal"></t-room-config>
         </div>
       </div>
     </div>
@@ -67,8 +67,9 @@ export default {
   methods: {
     init () {
       this.initialized = false
-      this.$speech.speechRecognition.abort()
       setTimeout(() => {
+        this.$speech.init()
+        this.$speech.bindEvents(this.onResult, this.onEnd, this.onError)
         this.$speech.listen()
         this.initialized = true
       }, 400)
@@ -92,7 +93,11 @@ export default {
       const message = new Message()
       message.text = text
       message.senderId = this.$user.user().id
-      message.room = this.room
+      message.inputLanguage = this.room.languages[this.$user.user().id].input
+      message.room = {
+        id: this.room.id,
+        languages: this.room.languages
+      }
 
       this.$chat.sendMessage(message)
     },
@@ -144,14 +149,13 @@ export default {
         this.speak(message)
       }
     })
-    this.$speech.bindEvents(this.onResult, this.onEnd, this.onError)
     this.$refs.inputmessage.$el.querySelector('input').focus()
   },
   beforeDestroy () {
     this.$chat.off('MESSAGE_ADDED_TO_ROOM')
   },
   destroyed () {
-    this.$speech.init()
+    this.$speech.speechRecognition.abort()
   }
 }
 </script>

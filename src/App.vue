@@ -15,7 +15,11 @@
 
 <script>
 import Translate from './services/Translate'
+import languagesJson from './utils/languages.json'
+
 const translateService = new Translate()
+const synth = window.speechSynthesis
+
 export default {
   name: 'App',
   components: {
@@ -44,19 +48,42 @@ export default {
   mounted () {
     /* bind chat events */
     this.$chat.on('ROOM_CREATED', room => {
+      room.languages[this.$user.user().id] = {
+        input: languagesJson.languages[0],
+        output: synth.getVoices().map(v => {
+          return {
+            lang: v.lang,
+            name: v.name
+          }
+        })[0]
+      }
       this.$store.dispatch('addRoom', room)
     })
     this.$chat.on('NEW_MESSAGE', message => {
-      if (this.active_room) {
-        const room = Object.assign({}, this.active_room)
-        delete room.messages
-        message.room = room
+      console.log('MENSAGEM RECEBIDA', message)
+
+      const room = this.$store.getters.rooms.find(r => r.id === message.room.id)
+
+      if (!room) {
+        this.$notification.error({ title: 'Sala não encontrada', content: 'A sala pode já não existir mais' })
+        return
       }
+
+      /* atualiza os idiomas da sala de acordo com a mensagem */
+      const updated = {}
+      updated[message.senderId] = {
+        input: message.inputLanguage
+      }
+      updated[this.$user.user().id] = room.languages[this.$user.user().id]
+      room.languages = updated
+
+      /* sincroniza a sala com a sala da mensagem */
+      message.room.languages[this.$user.user().id] = room.languages[this.$user.user().id]
 
       /* traduz */
       if (message.senderId !== this.$user.user().id) {
-        const incomingLanguage = message.room.languages[message.senderId].input.value.substring(0, 2)
-        const myLanguage = message.room.languages[this.$user.user().id].output.lang.substring(0, 2)
+        const incomingLanguage = message.inputLanguage.value.substring(0, 2)
+        const myLanguage = room.languages[this.$user.user().id].output.lang.substring(0, 2)
 
         if (incomingLanguage !== myLanguage) {
           const sentence = {
@@ -75,6 +102,7 @@ export default {
         this.addMessage(message)
       }
     })
+
     this.$chat.on('CLOSE_ROOM', roomId => {
       const room = this.$store.state.rooms.find(r => r.id === roomId)
       this.$store.dispatch('removeRoom', room)

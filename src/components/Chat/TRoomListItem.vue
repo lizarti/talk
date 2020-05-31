@@ -22,12 +22,12 @@ export default {
   props: ['room', 'active'],
   computed: {
     other_participant () {
-      return (this.room && this.room.participants && this.room.participants.find(p => {
+      return this.room && this.room.participants && this.room.participants.find(p => {
         return p.id !== this.$user.user().id
-      })) || {}
+      })
     },
     unread_counter () {
-      return this.room.unreadMessages || ''
+      return (this.room && this.room.unreadMessages) || ''
     }
   }
 }

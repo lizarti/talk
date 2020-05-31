@@ -1,10 +1,10 @@
 <template>
   <div class="md:flex flex-col flex-row md:min-h-screen" :class="navbar_classes">
     <div class="flex flex-col w-full md:w-56 text-gray-700 bg-white dark-mode:text-gray-200 dark-mode:bg-gray-800 flex-shrink-0 h-full">
-      <div class="flex-shrink-0 px-8 py-2 flex flex-row items-center justify-between">
-        <t-button icon class="md:hidden text-gray-800 " @click="open = !open">
+      <div class="flex-shrink-0 px-6 py-4 flex flex-row items-center justify-between">
+        <t-button icon class="md:hidden text-gray-800" @click="open = !open">
           <template v-slot:prepend>
-            <t-icon class="h-4 w-4 text-x1" :name="open ? 'close' : 'menu'"></t-icon>
+            <t-icon class="h-5 w-5 text-x1" :name="open ? 'close' : 'menu'"></t-icon>
           </template>
         </t-button>
       </div>
@@ -52,23 +52,7 @@
       </nav>
     </div>
 
-    <t-modal v-model="creating.modal" title="Nova conversa">
-      <div class="w-64">
-        <t-text-field ref="destinatario" placeholder="ID do destinatário" v-model="creating.id"></t-text-field>
-        <t-alert type="error" v-if="existing_room">
-          <p>Já possui uma conversa com esse usuário ({{ other_user.username }}).</p>
-        </t-alert>
-        <t-alert type="error" v-if="self_chat">
-          <p>Você não pode começar uma convesa com você mesmo (pelo menos não por enquanto).</p>
-        </t-alert>
-
-      </div>
-      <template v-slot:footer>
-        <div class="flex justify-center">
-          <t-button @click="loginIntoRoom()" :disabled="!is_valid">ENTRAR</t-button>
-        </div>
-      </template>
-    </t-modal>
+    <t-join-room v-if="creating.modal" :opened="creating.modal" @userSelect="loginIntoRoom"></t-join-room>
 
     <t-modal v-model="profile.modal" title="Editar perfil">
       <div class="w-48">
@@ -85,15 +69,16 @@
 </template>
 
 <script>
+import TJoinRoom from '../Chat/TJoinRoom'
 export default {
   name: 't-sidebar',
+  components: {
+    TJoinRoom
+  },
   data: () => ({
-    open: false,
+    open: true,
     creating: {
-      modal: false,
-      id: '',
-      found: false,
-      timeout: 0
+      modal: false
     },
     profile: {
       modal: false,
@@ -103,21 +88,9 @@ export default {
   methods: {
     openJoinRoom () {
       this.creating.modal = true
-      setTimeout(() => {
-        this.$refs.destinatario.$el.querySelector('input').focus()
-      }, 100)
     },
-    searchForUser () {
-      clearTimeout(this.creating.timeout)
-      this.creating.timeout = setTimeout(() => {
-        if (this.creating.id.length === 9) {
-          this.loginIntoRoom()
-        }
-      }, 200)
-    },
-    loginIntoRoom () {
-      this.$chat.startConversation(this.creating.id)
-      this.creating.id = ''
+    loginIntoRoom (user) {
+      this.$chat.startConversation(user.id)
       this.creating.modal = false
     },
     selectRoom (room) {
@@ -139,27 +112,13 @@ export default {
     }
   },
   computed: {
-    is_valid () {
-      return !this.existing_room && !this.self_chat && this.creating.id.length === 9
-    },
-    rooms () {
-      return this.$store.getters.rooms
-    },
-    existing_room () {
-      return this.rooms.find(r => {
-        return r.participants.some(p => p.id === this.creating.id)
-      })
-    },
-    self_chat () {
-      return this.creating.id === this.$user.user().id
-    },
-    other_user () {
-      return this.existing_room && this.existing_room.participants.find(p => p.id !== this.$user.user().id)
-    },
     navbar_classes () {
       return {
         'min-h-screen': this.open
       }
+    },
+    rooms () {
+      return this.$store.getters.rooms
     }
   }
 }
