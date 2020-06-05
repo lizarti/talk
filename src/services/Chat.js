@@ -27,8 +27,8 @@ export default class Chat extends EventEmitter {
       upgrade: false,
       path: '/socket.io/socket.io',
       transports: ['websocket'],
+      allowUpgrades: false,
       query: {
-        id: user.id,
         username: user.username,
         color: user.color
       }
