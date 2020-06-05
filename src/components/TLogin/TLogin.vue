@@ -3,7 +3,7 @@
     <t-modal :value="modalOpened" title="Login">
       <div>
         <t-text-field ref="username" placeholder="USERNAME" v-model="user.username" @keyup.enter="login()"></t-text-field>
-        <t-color-picker :value="user.color" @input="color => user.color = color"></t-color-picker>
+        <t-color-picker :value="user.color" @input="color => user.color = color" :random="true"></t-color-picker>
       </div>
       <template v-slot:footer>
         <div class="flex justify-center">

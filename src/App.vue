@@ -33,6 +33,14 @@ export default {
     addMessage (message) {
       this.$store.dispatch('addMessageToRoom', message)
       this.$chat.emit('MESSAGE_ADDED_TO_ROOM', message)
+    },
+    tryToLogin () {
+      const user = localStorage.getItem('user')
+      if (user) {
+        this.$chat.login(JSON.parse(user))
+      } else {
+        this.initialized = true
+      }
     }
   },
   computed: {
@@ -41,12 +49,7 @@ export default {
     }
   },
   created () {
-    const user = localStorage.getItem('user')
-    if (user) {
-      this.$chat.login(JSON.parse(user))
-    } else {
-      this.initialized = true
-    }
+    this.tryToLogin()
   },
   mounted () {
     /* bind chat events */
@@ -128,6 +131,15 @@ export default {
         this.$store.dispatch('deactivateRoom')
         this.$notification.error({
           content: 'O usuário desconectou.'
+        })
+      }
+    })
+
+    this.$chat.on('ROOM_UPDATED', room => {
+      this.$store.dispatch('updateRoom', room)
+      if (room.languages[this.$user.user().id]) {
+        this.$speech.config({
+          lang: room.languages[this.$user.user().id].input.value
         })
       }
     })

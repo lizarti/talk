@@ -22,8 +22,7 @@ export default {
   props: ['room', 'active'],
   computed: {
     other_participant () {
-      console.log(this.room)
-      return (this.room && this.room.otherParticipant(this.$user.user())) || {}
+      return (this.room && this.room.otherParticipant(this.$user.user().id)) || {}
     },
     unread_counter () {
       return (this.room && this.room.unreadMessages) || ''

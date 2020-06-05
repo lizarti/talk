@@ -30,7 +30,7 @@
           </div>
 
           <div class="flex justify-center w-full">
-            <h4 class="tracking-widest text-xs title-font font-medium mb-1 uppercase">CONVERSAS</h4>
+            <t-subheader>CONVERSAS</t-subheader>
           </div>
 
           <div class="px-4 py-4 flex justify-center">
@@ -88,12 +88,13 @@ export default {
     openJoinRoom () {
       this.creating.modal = true
     },
-    loginIntoRoom (user) {
-      this.$chat.startConversation(user.id)
+    loginIntoRoom (user, config) {
+      this.$chat.startConversation(user.id, config)
       this.creating.modal = false
     },
     selectRoom (room) {
       this.$store.dispatch('activateRoom', room)
+      this.open = false
     },
     openProfileEdit () {
       this.profile.editing = true

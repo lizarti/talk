@@ -14,6 +14,7 @@ import SpeechPlugin from './plugins/speech'
 import NotificationPlugin from './plugins/notification'
 
 /* components */
+import TSubheader from './components/TSubheader/TSubheader'
 import TButton from './components/TButton/TButton'
 import TSelect from './components/TSelect/TSelect'
 import TTextField from './components/TForm/TTextField'
@@ -21,6 +22,7 @@ import TModal from './components/TModal/TModal'
 import TAlert from './components/TAlert/TAlert'
 import TNotification from './components/TNotification/TNotification'
 import TIcon from './components/TIcon/TIcon'
+import TPattern from './components/TPattern/TPattern'
 import TColorPicker from './components/TColorPicker/TColorPicker'
 
 import TSidebar from './components/TSidebar/TSidebar'
@@ -35,6 +37,7 @@ Vue.use(ChatPlugin)
 Vue.use(SpeechPlugin)
 Vue.use(NotificationPlugin)
 
+Vue.component(TSubheader.name, TSubheader)
 Vue.component(TButton.name, TButton)
 Vue.component(TSelect.name, TSelect)
 Vue.component(TTextField.name, TTextField)
@@ -42,6 +45,7 @@ Vue.component(TModal.name, TModal)
 Vue.component(TAlert.name, TAlert)
 Vue.component(TNotification.name, TNotification)
 Vue.component(TIcon.name, TIcon)
+Vue.component(TPattern.name, TPattern)
 Vue.component(TColorPicker.name, TColorPicker)
 Vue.component(TSidebar.name, TSidebar)
 Vue.component(TLogin.name, TLogin)

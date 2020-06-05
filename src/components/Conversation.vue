@@ -2,7 +2,8 @@
   <div class="w-full relative">
     <div class="flex h-full">
       <div class="w-full flex-1 overflow-y-auto p-2 text-gray-800 h-full">
-        <div class="bg-white shadow-md rounded px-8 py-2 h-full flex flex-col">
+        <t-pattern :name="room.pattern" :color="other_user.color">
+        <div class="shadow-md rounded px-8 py-2 h-full flex flex-col">
           <div class="flex items-center justify-center w-full mb-2">
 
             <t-button icon class="text-gray-800 absolute left-0 ml-8" @click="closeRoom()">
@@ -22,7 +23,7 @@
 
               <div class="flex-col items-center">
                 <h4 class="tracking-widest text-lg title-font font-medium uppercase" :style="{'color': other_user.color }">{{ other_user.username }}</h4>
-                <p class="text-xs text-gray-400 -m-1 text-center">{{ other_user.id }}</p>
+                <p class="text-xs text-gray-500 -m-1 text-center">{{ other_user.id }}</p>
               </div>
             </div>
 
@@ -45,10 +46,11 @@
               </t-button>
             </div>
             <t-text-field ref="inputmessage" placeholder="Mensagem" v-model="message" @keyup.enter="sendTextMessage()"></t-text-field>
-            <t-button class="ml-4" @click="sendTextMessage()">ENVIAR</t-button>
+            <t-button class="ml-4" @click="sendTextMessage()" color="white">ENVIAR</t-button>
           </div>
           <t-room-config v-if="roomConfigModal" :room="room" @configure="onConfigure" :opened="roomConfigModal"></t-room-config>
         </div>
+        </t-pattern>
       </div>
     </div>
   </div>
@@ -111,23 +113,20 @@ export default {
     openConfig () {
       this.roomConfigModal = true
     },
-    onConfigure (languages) {
-      this.$store.dispatch('setLanguageToRoom', {
-        room: this.room,
-        languages
-      })
+    onConfigure (config) {
+      const existingRoom = Object.assign({}, this.room)
+      existingRoom.pattern = config.pattern
+      existingRoom.languages[this.$user.user().id] = config.languages
+      this.$chat.updateRoom(existingRoom)
       this.roomConfigModal = false
-      this.$speech.config({
-        lang: languages.input.value
-      })
     }
   },
   computed: {
     me_in_room () {
-      return this.room.participants.find(p => p.id === this.$user.user().id)
+      return this.room.me(this.$user.user().id)
     },
     other_user () {
-      return this.room.participants.find(p => p.id !== this.$user.user().id)
+      return this.room.otherParticipant(this.$user.user().id)
     },
     messages () {
       return this.room.messages

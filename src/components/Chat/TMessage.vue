@@ -9,7 +9,7 @@
     </div>
     <div class="flex flex-col">
       <span class="text-xs text-gray-600 mb-1 inline-block">{{ formatted_date }}</span>
-      <span class="leading-relaxed text-white rounded py-2 px-3 inline-block" :style="{'background-color': is_mine ? me.color : other_user.color }">{{ text_message }}</span>
+      <span class="leading-relaxed text-white rounded py-2 px-3 inline-block" :style="{'background-color': is_mine ? me_in_room.color : other_user.color }">{{ text_message }}</span>
     </div>
   </div>
 </template>
@@ -41,12 +41,12 @@ export default {
         'justify-end': this.is_mine
       }
     },
-    me () {
+    me_in_room () {
       /* o eu da mensagem pode ter definições (de cores, por exemplo) diferentes do eu atual */
-      return this.message.room.participants.find(p => p.id === this.$user.user().id)
+      return this.message.room.otherParticipant(this.$user.user().id)
     },
     other_user () {
-      return this.message.room.participants.find(p => p.id !== this.$user.user().id)
+      return this.message.room.me(this.$user.user().id)
     },
     should_be_translated () {
       return !!this.message.translated

@@ -1,9 +1,11 @@
 <template>
   <t-modal :value="true" title="Nova conversa" @input="val => $emit('input', val)">
     <div class="w-64">
+      <t-subheader class="mb-1">PLANO DE FUNDO</t-subheader>
+      <t-pattern-picker v-model="selectedPattern" :activeColor="user && user.color"></t-pattern-picker>
       <t-text-field maxlength="9" ref="destinatario" placeholder="ID do destinatário" v-model="id" @keyup="searchForUser"></t-text-field>
       <t-alert type="error" v-if="existing_room">
-        <p>Já possui uma conversa com esse usuário ({{ other_user.username }}).</p>
+        <p>Já possui uma conversa com o usuário <span class="font-semibold"> {{ other_user.username }}</span>.</p>
       </t-alert>
       <t-alert type="error" v-if="self_chat">
         <p>Você não pode começar uma convesa com você mesmo (pelo menos não por enquanto).</p>
@@ -33,21 +35,27 @@
 </template>
 
 <script>
+import TPatternPicker from '../TPattern/TPatternPicker'
 export default {
   name: 't-join-room',
+  components: {
+    TPatternPicker
+  },
   data: () => ({
     user: null,
     id: '',
     timeout: 0,
     searching: false,
-    notFound: false
+    notFound: false,
+    patterns: ['jigsaw', 'falling-triangles', 'hideout'],
+    selectedPattern: null
   }),
   methods: {
     searchForUser () {
       clearTimeout(this.timeout)
       this.timeout = setTimeout(() => {
         if (this.id.length === 9) {
-          this.searching = true
+          this.searching = false
           this.notFound = false
           this.$chat.searchForUser(this.id)
         }
@@ -57,7 +65,9 @@ export default {
       if (!this.is_valid) {
         return
       }
-      this.$emit('userSelect', this.user)
+      this.$emit('userSelect', this.user, {
+        pattern: this.selectedPattern
+      })
       this.user = null
       this.notFound = null
       this.searching = null
@@ -71,12 +81,10 @@ export default {
       return this.$store.getters.rooms
     },
     existing_room () {
-      return this.rooms.find(r => {
-        return r.participants.some(p => p.id === this.id)
-      })
+      return this.id !== this.$user.user().id && this.rooms.find(r => r.hasUser(this.id))
     },
     other_user () {
-      return (this.existing_room && this.existing_room.participants.find(p => p.id !== this.$user.user().id)) || {}
+      return (this.existing_room && this.existing_room.otherParticipant(this.$user.user().id)) || {}
     },
     self_chat () {
       return this.id === this.$user.user().id

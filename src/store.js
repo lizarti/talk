@@ -7,11 +7,11 @@ const SET_ROOMS = 'SET_ROOMS'
 const UPDATE_USER_IN_ROOMS = 'UPDATE_USER_IN_ROOMS'
 const EXIT = 'EXIT'
 const ADD_ROOM = 'ADD_ROOM'
+const UPDATE_ROOM = 'UPDATE_ROOM'
 const REMOVE_ROOM = 'REMOVE_ROOM'
 const ACTIVATE_ROOM = 'ACTIVATE_ROOM'
 const DEACTIVATE_ROOM = 'DEACTIVATE_ROOM'
 const ADD_MESSAGE_TO_ROOM = 'ADD_MESSAGE_TO_ROOM'
-
 const SET_LANGUAGE_TO_ROOM = 'SET_LANGUAGE_TO_ROOM'
 
 const initialState = () => {
@@ -42,6 +42,15 @@ const mutations = {
     const existingRoom = state.rooms.find(r => r.id === room.id)
     if (!existingRoom) {
       state.rooms.push(room)
+    }
+  },
+  [UPDATE_ROOM] (state, room) {
+    const existingRoom = state.rooms.find(r => r.id === room.id)
+    console.log('existingRoom', existingRoom)
+    console.log('room', room)
+    existingRoom.pattern = room.pattern
+    if (room.languages[state.user.id]) {
+      existingRoom.languages[state.user.id] = room.languages[state.user.id]
     }
   },
   [REMOVE_ROOM] (state, room) {
@@ -87,6 +96,9 @@ const actions = {
   },
   addRoom ({ commit }, room) {
     commit(ADD_ROOM, room)
+  },
+  updateRoom ({ commit }, room) {
+    commit(UPDATE_ROOM, room)
   },
   removeRoom ({ commit }, room) {
     commit(REMOVE_ROOM, room)

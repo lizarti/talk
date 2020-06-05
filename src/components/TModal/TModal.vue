@@ -8,9 +8,9 @@
       <div class="flex flex-col items-center justify-center h-full w-full -mt-16">
         <transition name="fade-up-down">
           <div v-show="value" class="modal-wrapper inline-block flex items-center z-30" :class="classes">
-            <div class="modal bg-white max-h-screen shadow-lg flex-row rounded relative">
+            <div class="modal bg-white  max-h-screen shadow-lg flex-row rounded relative">
 
-              <div class="mb-4 px-5 py-4 bg-blue-200">
+              <div class="mb-4 px-4 py-4 bg-blue-200 rounded-t">
                 <template v-if="$slots.header">
                   <slot name="header"></slot>
                 </template>
@@ -19,11 +19,11 @@
                 </template>
               </div>
 
-              <div class="modal-body px-6 mb-8 w-full h-full">
+              <div class="modal-body px-6 mb-8 w-full h-full" :class="{'rounded-b': !$slots.foooter}">
                 <slot></slot>
               </div>
 
-              <div class="modal-footer border0-t text-right bg-orange-200 py-4" v-if="$slots.footer">
+              <div class="modal-footer border0-t text-right bg-orange-200 py-4 rounded-b" v-if="$slots.footer">
                 <slot name="footer"></slot>
               </div>
             </div>
