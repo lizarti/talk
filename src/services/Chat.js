@@ -26,8 +26,7 @@ export default class Chat extends EventEmitter {
     this.chatSocket = io.connect(`${wsBaseUrl}`, {
       upgrade: false,
       path: '/socket.io/socket.io',
-      transports: ['websocket'],
-      allowUpgrades: false,
+      // transports: ['websocket'],
       query: {
         username: user.username,
         color: user.color
