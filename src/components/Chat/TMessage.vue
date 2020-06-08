@@ -43,10 +43,10 @@ export default {
     },
     me_in_room () {
       /* o eu da mensagem pode ter definições (de cores, por exemplo) diferentes do eu atual */
-      return this.message.room.otherParticipant(this.$user.user().id)
+      return this.message.room.me(this.$user.user().id)
     },
     other_user () {
-      return this.message.room.me(this.$user.user().id)
+      return this.message.room.otherParticipant(this.$user.user().id)
     },
     should_be_translated () {
       return !!this.message.translated
